@@ -1,0 +1,28 @@
+name: Build-EXE (Windows)
+
+on:
+  push:
+    branches: [ main, master ]
+  release:
+    types: [ created ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: python -m pip install -r requirements-build.txt
+      - run: pyinstaller --onefile --noconsole ip_range_switcher.py
+        shell: pwsh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ip_range_switcher_exe
+          path: dist/ip_range_switcher.exe
+      - if: github.event_name == 'release'
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/ip_range_switcher.exe"
+          token: ${{ secrets.GITHUB_TOKEN }}
