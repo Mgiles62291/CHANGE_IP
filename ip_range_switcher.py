@@ -42,13 +42,13 @@ def powershell(cmd: str) -> str:
 # ---------------------------------------------------------------------------
 
 def list_adapters():
-    """Return a list of UP adapters' friendly names (no virtual/loopback)."""
+    """Return *all* physical (non‑loopback) adapter names, regardless of status."""
     ps = (
-        "Get-NetAdapter | Where {$_.Status -eq 'Up' -and $_.HardwareInterface -eq $true} "
+        "Get-NetAdapter | Where { $_.HardwareInterface -eq $true -and $_.InterfaceDescription -notmatch 'Loopback' } "
         "| Select -ExpandProperty Name")
     out = powershell(ps)
     lines = [l.strip() for l in out.splitlines() if l.strip()]
-    return lines if lines else ["(no active adapter found)"]
+    return lines if lines else ["(no adapter found)"]
 
 
 def _run_netsh(args):
